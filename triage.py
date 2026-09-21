@@ -1,6 +1,6 @@
 """The system under test. Frozen for P1: you measure this file, you do not edit it.
 
-Copied from the Week 1 lab (github.com/aise-stthomas/feel-the-distribution, 6dcc1d1),
+Copied from the feel-the-distribution lab (github.com/aise-stthomas/feel-the-distribution),
 plus one option, policy_in, which deliverable 6 asks you to measure.
 
     render  -> the ticket and account become tokens in a prompt
@@ -53,7 +53,7 @@ def render(ticket: str, account: dict, policy_in: str = "user") -> tuple[str | N
     """Turn the ticket and the account into what the model will read: (system, user).
 
     policy_in="user" puts the policy in the same text as the ticket. That is the
-    baseline, and how the Week 1 lab sends it. policy_in="system" sends the policy as
+    baseline, and how the lab sends it. policy_in="system" sends the policy as
     the system instruction and leaves only the data in the user text. Either way the
     model receives one sequence of tokens; the difference is a marker the model was
     trained to weigh. Whether that changes the decisions is what you measure.
