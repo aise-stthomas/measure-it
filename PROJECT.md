@@ -123,8 +123,9 @@ habit: no comparison without a noise floor.
   run. A smaller suite with better slices costs less and scores higher.
 - The free tier allows roughly 25 calls a minute, and it also has a **daily cap per
   model**. There are two of you, so you have two keys, and that should be enough to finish. At worst, five dollars of credit will cover this plus every other lab this semester. Do not start a five-run sweep the night before the deadline.
-- **Record every live call** to a fixture file and score from the fixtures. Re-scoring
-  costs nothing; re-sampling costs quota, and gives you different data.
+- **Record every live call** and score from the recordings. The repository calls a saved
+  model output a *fixture* and keeps them under `fixtures/`; its README explains why.
+  Re-scoring costs nothing; re-sampling costs quota, and gives you different data.
 - One key per student, in `.env`, never in a commit.
 
 ## Submit

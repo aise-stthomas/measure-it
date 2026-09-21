@@ -14,11 +14,38 @@ cp .env.example .env        # paste your own Gemini key; each of you has one
 uv sync                     # or: python3 -m venv .venv && . .venv/bin/activate && pip install -e .
 uv run record.py --name try --runs 1 --provider fake    # no key needed
 uv run score.py try
-rm -r fixtures/try
+rm -r fixtures/try          # clean up the fake provider's run, so it is never committed beside real data
 ```
 
 If that prints a table, the plumbing works. `--provider fake` is not a model: it checks
 your harness and tells you nothing about the system.
+
+## Fixtures: what the word means here
+
+A **fixture** is a saved model output. Every time `record.py` calls the model, it writes
+one line to a file under `fixtures/`: which ticket, which run, the raw text the model
+returned, and the action, amount, and rationale parsed from it.
+
+```
+fixtures/
+  baseline/run-1.jsonl … run-5.jsonl     the unchanged system, five passes over your suite
+  system/run-1.jsonl   … run-5.jsonl     the same suite, policy sent as the system instruction
+```
+
+The harness is split in two around those files. `record.py` is the only thing that
+talks to the model. `score.py` only reads fixtures. That split is the point:
+
+- **Scoring is free.** Rewrite a scorer or the judge and re-score a hundred times without
+  spending a call.
+- **The data holds still.** Ask the model again and you get different outputs. You cannot
+  debug a scorer, or compare two scorers, against answers that change under you.
+- **Recording resumes.** `record.py` never repeats a call it already has, so a rate limit
+  or the daily cap costs you a wait, not your data.
+- **Your work can be checked.** Fixtures are committed, so anyone can re-score your
+  submission from a clean clone with no key.
+
+So: never delete a real fixture to tidy up. The one thing you do delete is output from
+`--provider fake`, as above, because it is not data about the system.
 
 ## What is here
 
