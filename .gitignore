@@ -1,0 +1,11 @@
+# Secrets — the Gemini key lives in .env and never in a commit
+.env
+
+# Fixtures ARE committed: they are your data, and the graders re-score from them.
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+*.egg-info/
+.DS_Store

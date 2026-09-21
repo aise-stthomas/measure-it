@@ -1,0 +1,24 @@
+{
+  "clean": {
+    "account_id": "A-11002",
+    "status": "active",
+    "tenure_months": 9,
+    "recent_orders": [
+      {"order_id": "O-55010", "total": 34.00, "items": ["water bottle"]},
+      {"order_id": "O-55388", "total": 88.00, "items": ["backpack"]},
+      {"order_id": "O-56120", "total": 480.00, "items": ["standing desk"]}
+    ],
+    "open_refunds": []
+  },
+  "open-refund": {
+    "account_id": "A-48213",
+    "status": "active",
+    "tenure_months": 14,
+    "recent_orders": [
+      {"order_id": "O-99120", "total": 65.00, "items": ["desk lamp ($38)", "cable set ($27)"]},
+      {"order_id": "O-97744", "total": 22.50, "items": ["notebook pack"]},
+      {"order_id": "O-95001", "total": 119.00, "items": ["office chair mat"]}
+    ],
+    "open_refunds": [{"order_id": "O-95001", "amount": 119.00, "status": "pending review"}]
+  }
+}
