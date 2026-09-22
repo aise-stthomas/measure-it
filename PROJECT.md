@@ -17,8 +17,8 @@ makes one consequential decision.
 |---|---|---|---|
 | 1 | **Golden set**: 50–80 tickets, each with the action the policy requires, the most the refund may be, slice tags, and the policy sentence that makes the answer right. Tickets the two of you cannot agree on stay in, tagged `ambiguous`. | `golden/golden.jsonl` | Realistic tickets across every intent the policy covers, plus edge and adversarial items you wrote by hand. |
 | 2 | **Slices**: at minimum by intent; by amount relative to the caps (well under, near, over \$50, over \$200); by whether the ticket contains text addressed to the model; and one of your own that you expect to fail. | slice tags on every ticket | Every number you report is per slice, as a count. "4 of 6" is a finding; "67%" on six items is a decoration. |
-| 3 | **Scorers**: exact match for the action; a rule for the amount (within the cap, and not a number that appears nowhere in the ticket or account); malformed output counted as a failure; a **model judge** with a written rubric for the rationale. | `harness/scorers.py`, `harness/judge.py` | The rubric asks at least: does the rationale agree with the action taken, and does it state the policy and the arithmetic correctly? Both fail in this system's output: one rationale ends "choosing to hold since it exceeds my limit" on a `refund` of \$52.99; another says the total "is under \$50" when it is \$52.99. |
-| 4 | **A validated judge**: the two of you label 30 rationales by hand, separately, then reconcile; run the judge on the same 30; report agreement and disagreement as counts, per slice, and the judge's failure modes. | `judge-validation.md` and the labels file | A judge you have not checked is an opinion. |
+| 3 | **Scorers.** Three are already written in `harness/scorers.py`: `action` (exact match), `amount` (within the cap), `format` (it parsed). You **extend `amount`** so it also fails a number that appears nowhere in the ticket or the account, and you **write the fourth, `rationale`**, which is the LLM judge in row 4. | `harness/scorers.py` | Every scorer returns pass, fail, or "does not apply"; malformed output is a failure, never dropped. |
+| 4 | **An LLM judge for the rationale, validated.** The rationale is free text, so no rule can score it. Its scorer is a **second model call with a written rubric**: the rubric goes in the system instruction, the rationale (with the action and the policy) in the user text, and the judge answers yes/no questions. Write it in `harness/judge.py`, wire it into `score_rationale`, then **validate it**: the two of you label 30 rationales by hand, separately, then reconcile; run the judge on the same 30; report agreement and disagreement as counts, per slice, and the judge's failure modes. | `harness/judge.py`, `judge-validation.md`, your labels file | The rubric asks at least: does the rationale agree with the action taken, and does it state the policy and the arithmetic correctly? Both fail in this system's output: one rationale ends "choosing to hold since it exceeds my limit" on a `refund` of \$52.99; another says the total "is under \$50" when it is \$52.99. A judge you have not checked is an opinion. |
 | 5 | **The noise floor**: the unchanged system run five times over the whole suite; the pass rate per slice per run, and the spread. | `fixtures/baseline/`, `report.md` | One sentence per slice: the smallest change you could actually detect. |
 | 6 | **The question, answered**: the suite run five times with `--policy-in system`; per slice, **helped**, **hurt**, or **cannot tell**. | `fixtures/system/`, `report.md` | "Cannot tell" is right when the difference is inside the noise floor, and wrong when it is not. |
 | 7 | **Blind-spot register**: what this harness cannot see. | `blind-spots.md` | Written, honest, short. The `ambiguous` items, the judge's failure modes, and the ways the system can be wrong that no ticket exercises. |
@@ -35,7 +35,7 @@ The README describes it. Three things are pinned, and you measure them as pinned
 You do not edit anything in `system/`. A system that changes while you measure it has no
 measurement.
 
-## How to validate the judge (deliverable 4)
+## How to validate the LLM judge (deliverable 4)
 
 The judge is a model call that scores another model's text. Before its numbers count
 for anything, you measure the judge itself, against you.
@@ -97,7 +97,7 @@ fifty-ticket suite with slices, a noise floor, and a register that admits what i
 | Part | Weight | What earns it |
 |---|---|---|
 | Golden set and slices (1, 2) | 25% | Slices that expose what the aggregate hides; expected outcomes traceable to the policy |
-| Scorers and judge validation (3, 4) | 25% | A judge you checked rather than trusted; its failure modes named; malformed output counted |
+| Scorers and the LLM judge (3, 4) | 25% | The amount rule extended; a judge you checked rather than trusted, its failure modes named; malformed output counted |
 | Noise floor and the answered question (5, 6) | 25% | Five real runs; per-slice spread; a conclusion the data supports, including "cannot tell" |
 | Blind-spot register (7) | 10% | Specific, honest, short |
 | Requirements brief (8) | 10% | Rates, slices, remainder policies, owners; measured numbers beside them |

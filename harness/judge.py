@@ -1,4 +1,5 @@
-"""YOURS (deliverables 3 and 4). The judge for the rationale text.
+"""YOURS (deliverables 3 and 4). The LLM judge for the rationale text: a second model call
+that reads a rationale and a rubric and answers yes/no questions.
 
 Nothing is written here on purpose. What the spec asks for, in the order that works:
 

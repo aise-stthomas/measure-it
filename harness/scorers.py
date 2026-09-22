@@ -29,7 +29,8 @@ def score_format(item: dict, output: dict) -> bool:
 
 
 def score_rationale(item: dict, output: dict) -> bool | None:
-    """YOURS (deliverables 3 and 4). A model judge with a written rubric; build it in judge.py.
+    """YOURS (deliverables 3 and 4). An LLM judge: a second model call with a written rubric,
+    built in judge.py and called from here.
 
     At minimum the rubric asks: does the rationale agree with the action that was
     actually taken, and does it state the policy correctly? Record the judge's outputs
