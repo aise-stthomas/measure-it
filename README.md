@@ -1,7 +1,6 @@
 # Measure it
 
-An evaluation harness for one model call. You start it in class and finish it as
-Project 1, in the same repository.
+An evaluation harness for one model call.
 
 ## What is being measured
 
