@@ -1,7 +1,8 @@
 # Measure it
 
 Project 1 of AI Systems Engineering: build an evaluation harness for one model call.
-**The assignment is [PROJECT.md](PROJECT.md).** This page is how to get running.
+**The in-class lab is [LAB.md](LAB.md). The assignment is [PROJECT.md](PROJECT.md).**
+This page is how to get running.
 
 ## Start
 
