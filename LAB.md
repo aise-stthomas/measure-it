@@ -1,7 +1,7 @@
 # Lab: can you tell a change from a wobble?
 
 In pairs. You build a small evaluation harness, run it against the triage system, and
-see how much evidence eight tickets can give. The lab has the same shape as the
+see how much evidence fifteen tickets can give. The lab has the same shape as the
 project, in miniature: **a dataset, then code, then a measurement.**
 
 **The question.** The policy can be sent to the model in the same text as the ticket, or
@@ -14,7 +14,7 @@ as the system instruction. Does moving it help? You answer per slice, in one wor
    and two people will not always agree.
 2. **A harness is a list of scorers.** Adding a check is adding one function and one row.
 3. **A judge is a model, so it gets measured too**, against your own labels.
-4. **The number moves when nothing changes.** That wobble is the noise floor, and eight
+4. **The number moves when nothing changes.** That wobble is the noise floor, and fifteen
    tickets cannot tell a change from it. That is why the project asks for fifty to eighty.
 
 ## Part 0: make it run
@@ -24,7 +24,7 @@ Do **Setup, once** in the [README](README.md). While your partner finishes, read
 
 ## Part 1: the dataset — write five tickets
 
-`golden/golden.jsonl` has three tickets. Add **five**, in the same format
+`golden/golden.jsonl` has ten tickets. Add **five**, in the same format
 (`golden/README.md` explains each field), one of each:
 
 | Ticket | Expected action | Slice tags |
@@ -41,7 +41,7 @@ If you cannot quote one, keep the ticket and mark it ambiguous: that is a findin
 Then record the baseline:
 
 ```bash
-uv run record.py --name baseline --runs 3     # 24 calls, saved under fixtures/baseline/
+uv run record.py --name baseline --runs 3     # 45 calls, saved under fixtures/baseline/
 uv run score.py baseline
 ```
 
@@ -70,12 +70,12 @@ The `rationale` scorer is different: the rationale is free text, so no rule can 
 rationale support the action that was actually taken?* Run it over the baseline:
 
 ```bash
-uv run judge.py baseline       # 24 judge calls; verdicts saved as fixtures
+uv run judge.py baseline       # 45 judge calls; verdicts saved as fixtures
 uv run score.py baseline       # the rationale row now has numbers
 ```
 
 Now measure the judge. Open `fixtures/baseline/run-1.jsonl`. **Each of you, alone,**
-reads the eight rationales and answers the same question, yes or no, for each. Compare
+reads the fifteen rationales in it and answers the same question, yes or no, for each. Compare
 with each other first; then compare with the judge's verdicts in
 `fixtures/baseline/judge-run-1.jsonl`. Fill in the four counts:
 

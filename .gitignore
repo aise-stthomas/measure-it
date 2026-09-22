@@ -9,3 +9,7 @@ __pycache__/
 .venv/
 *.egg-info/
 .DS_Store
+
+# A large golden set that stays out of the repository (instructor's full set; drafts)
+golden/golden-full.jsonl
+golden/*.local.jsonl
