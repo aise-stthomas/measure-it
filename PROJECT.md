@@ -20,19 +20,14 @@ Everything you measure is about that component.
 
 ## Where you start
 
-That lab's `slices.py` was a harness stub: ten tickets, one aggregate number, three repeats, no noise floor, and no check on the rationale at all. You are building
-the real one.
+In the repository you made in the lab, from the [measure-it](https://github.com/aise-stthomas/measure-it)
+template. It holds the frozen system under test (`triage.py`), the golden-set format
+with your first tickets, a recorder that keeps every live call (`record.py`), and a
+scoring skeleton with three scorers written (`score.py`). Everything marked `YOURS` is
+the project. You do not edit `triage.py`.
 
-Open [measure-it](https://github.com/aise-stthomas/measure-it) and choose **Use this
-template** to create one **private** repository for your pair. It contains the frozen
-system under test (`triage.py`), the golden-set format with three example tickets
-(`golden/`), a recorder that keeps every live call and resumes after a rate limit
-(`record.py`), and a scoring skeleton in which only the exact-match check on the action
-is written (`score.py`). Everything marked `YOURS` is the project. You do not edit
-`triage.py`.
-
-The full Operator scaffold arrives with a later project, and your harness will port to it without
-changes, because its output has the same shape.
+The full Operator scaffold arrives with a later project, and your harness will port to it
+without changes, because its output has the same shape.
 
 ## Deliver
 

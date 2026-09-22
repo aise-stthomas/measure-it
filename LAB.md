@@ -1,7 +1,7 @@
 # Lab: can you tell a change from a wobble?
 
-One hour, in pairs. You will build the smallest evaluation harness that can answer a
-real question, run it against the triage system from the *feel the distribution* lab,
+In pairs. You will build the smallest evaluation harness that can answer a real
+question, run it against the triage system from the *feel the distribution* lab,
 and find out how much evidence eight tickets can give you. The repository you make
 here is where Project 1 continues.
 
@@ -11,20 +11,9 @@ per slice, in one of three words: *helped*, *hurt*, or *cannot tell*.
 
 ## Part 0: make the harness run
 
-1. Open this repository on GitHub and choose **Use this template** → one **private**
-   repository for your pair. Add your partner and the instructor as collaborators.
-2. Clone it, then:
-
-```bash
-cp .env.example .env        # paste your Gemini key
-uv sync
-uv run record.py --name try --runs 1 --provider fake
-uv run score.py try
-rm -r fixtures/try          # the fake provider's output is not data
-```
-
-If `score.py` printed a table, the plumbing works. Read `triage.py` while your partner
-sets up: it is the system under test, and you do not change it.
+Do **Setup, once** in the [README](README.md): the template, the key, `uv sync`, and the
+fake-provider check. Then read `triage.py` while your partner finishes: it is the system
+under test, and you do not change it.
 
 ## Part 1: write five tickets
 
@@ -54,11 +43,11 @@ uv run record.py --name baseline --runs 3
 uv run score.py baseline
 ```
 
-Twenty-four calls. `score.py` prints one table per run, per slice, as counts.
+Twenty-four calls. `score.py` prints one table per run: for each slice and each scorer, passed of total. Use the `action` rows.
 
 Write down, for the slice `intent:refund` (or the largest slice you have):
 
-- the pass count in each of the three runs: ___ / ___ / ___ of ___
+- the `action` pass count in each of the three runs: ___ / ___ / ___ of ___
 - **the noise floor** on that slice: highest rate minus lowest rate = ___ points
 
 That number is how much your measurement moves when nothing changes.
