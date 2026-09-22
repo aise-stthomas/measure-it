@@ -54,8 +54,8 @@ and `SCORERS` is the list of them: a name, the function, and what it checks. The
 loop applies every scorer in that list to every recorded output. **Adding a check is
 adding a function and a row.**
 
-Add one. Suggested: `amount_absent`, which passes when the action is `answer` or
-`escalate` and no refund amount was proposed, and returns `None` otherwise. Then:
+Add one. Suggested: `rationale_present`, which passes when the output has a rationale of
+at most one sentence (say, 1 to 300 characters), since the policy asked for one. Then:
 
 ```bash
 uv run score.py baseline       # re-scoring is free: nothing is re-recorded
