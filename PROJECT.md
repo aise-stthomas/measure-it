@@ -154,6 +154,6 @@ fifty-ticket suite with slices, a noise floor, and a register that admits what i
 ## Permitted and prohibited
 
 AI assistance is permitted and expected, including for writing tickets and code. You are
-responsible for every line and every label: the hand labels in deliverable 4 are yours,
+responsible for every line and every label: the hand labels in the judge validation are yours,
 made by reading. Evaluation frameworks that hide the loop are not permitted; the harness
 is a few hundred lines and you should be able to read all of them.
