@@ -1,98 +1,95 @@
 # Lab: can you tell a change from a wobble?
 
-In pairs. You will build the smallest evaluation harness that can answer a real
-question, run it against the triage system from the *feel the distribution* lab,
-and find out how much evidence eight tickets can give you. The repository you make
-here is where Project 1 continues.
+In pairs. You build the smallest evaluation harness that can answer a real question,
+run it against the triage system, and see how much evidence eight tickets can give.
 
-**The question.** The policy can be sent to the model two ways: in the same text as
-the ticket, or as the system instruction. Does moving it help? You will answer that
-per slice, in one of three words: *helped*, *hurt*, or *cannot tell*.
+**The question.** The policy can be sent to the model in the same text as the ticket, or
+as the system instruction. Does moving it help? You answer per slice, in one word:
+**helped**, **hurt**, or **cannot tell**.
 
-## Part 0: make the harness run
+**What this lab shows.** Three things, in order:
 
-Do **Setup, once** in the [README](README.md): the template, the key, `uv sync`, and the
-fake-provider check. Then read `system/triage.py` while your partner finishes: it is the system
-under test, and you do not change it.
+1. **The golden set is the specification.** Deciding the right answer for a ticket is the
+   hard part, and two people will not always agree.
+2. **The number moves when nothing changes.** Run the same tickets three times and the
+   pass rate wobbles. That wobble is the noise floor.
+3. **Eight tickets cannot tell a change from a wobble.** On most slices the honest
+   verdict is "cannot tell." That is why the project asks for fifty to eighty.
+
+## Part 0: make it run
+
+Do **Setup, once** in the [README](README.md). While your partner finishes, read
+`system/triage.py`: it is the system under test, and you do not change it.
 
 ## Part 1: write five tickets
 
-Open `golden/golden.jsonl`. Three tickets are there. Add **five** of your own, in the
-same format (`golden/README.md` explains each field). Cover these, one each:
+`golden/golden.jsonl` has three tickets. Add **five**, in the same format
+(`golden/README.md` explains each field), one of each:
 
-| Your ticket | The policy says | Slice tags to use |
+| Ticket | Expected action | Slice tags |
 |---|---|---|
 | a refund request **under \$50** | `refund` | `intent:refund`, `amount:under-50` |
 | a refund request **between \$50 and \$200** | `hold` | `intent:refund`, `amount:50-to-200` |
 | a refund request **over \$200** | `escalate` | `intent:refund`, `amount:over-200` |
 | a question with **no money involved** | `answer` | `intent:question` |
-| a ticket where the two of you **disagree** on the right answer | your best call, with `"ambiguous": true` | whatever fits |
+| a ticket the two of you **disagree** on | your best call, and `"ambiguous": true` | whatever fits |
 
-For every ticket, fill in `policy` with the sentence of the policy that makes your
-answer right. If you cannot quote one, that is a finding: write the ticket anyway and
-mark it ambiguous.
+For each, fill in `policy` with the sentence of the policy that makes the answer right.
+If you cannot quote one, keep the ticket and mark it ambiguous: that is a finding.
 
-**Before you go on:** you have just written a specification. Eight examples with the
-right answer attached is the whole definition of "correct" your harness will ever have.
-Notice how long the fifth ticket took.
+> You have just written a specification. Eight examples with the right answer attached
+> is the whole definition of "correct" this harness will ever have.
 
-## Part 2: record the baseline, three times
+## Part 2: measure the wobble
 
 ```bash
-uv run record.py --name baseline --runs 3
+uv run record.py --name baseline --runs 3     # 24 calls
 uv run score.py baseline
 ```
 
-Twenty-four calls. `score.py` prints one table per run: for each slice and each scorer, passed of total. Use the `action` rows.
+`score.py` prints one table per run: for each slice and each scorer, passed of total.
+Use the `action` rows. For your largest slice, write down:
 
-Write down, for the slice `intent:refund` (or the largest slice you have):
+- the pass count in each run: ___ / ___ / ___ of ___
+- **the noise floor**: highest rate minus lowest rate = ___ points
 
-- the `action` pass count in each of the three runs: ___ / ___ / ___ of ___
-- **the noise floor** on that slice: highest rate minus lowest rate = ___ points
-
-That number is how much your measurement moves when nothing changes.
-
-## Part 3: make one change, and judge it
+## Part 3: make one change, and give a verdict
 
 ```bash
 uv run record.py --name system --runs 3 --policy-in system
 uv run score.py baseline system
 ```
 
-Same tickets, same model, one change: the policy is now the system instruction.
+Same tickets, same model; the policy is now the system instruction. For **each slice**,
+compare the three `baseline` runs with the three `system` runs and write one word:
+**helped**, **hurt**, or **cannot tell**. The rule: a difference smaller than that
+slice's noise floor is not evidence of anything.
 
-For **each slice**, compare the three baseline runs with the three `system` runs and
-write one word: **helped**, **hurt**, or **cannot tell**. The rule from the lecture: a
-difference smaller than the noise floor on that slice is not evidence of anything.
+Then, for your largest slice, the 95% interval on its baseline pass rate. With $x$
+passes of $n$:
 
-Then one more line, for your largest slice: the 95% interval on its baseline pass
-rate, from the formula on the slide (or, if it had zero failures, the rule of three:
-the true failure rate could still be as high as 3 / n). How wide is it?
+$$\frac{\hat p + \frac{1.92}{n} \pm 1.96\sqrt{\frac{\hat p(1-\hat p)}{n} + \frac{0.96}{n^2}}}{1 + \frac{3.84}{n}}, \qquad \hat p = x/n$$
+
+(4 of 6 gives 30% to 90%.) If the slice had zero failures, the rule of three: its true
+failure rate could still be as high as $3/n$.
 
 ## Part 4: write it down
 
-In your repository, create `lab.md` with:
+Create `lab.md` in your repository:
 
 1. The noise floor on one slice, with the three counts behind it.
-2. Your verdict per slice, and the numbers each verdict rests on.
-3. One sentence: how many tickets would you need on that slice before you would
-   believe a 10-point improvement? (Use the interval you just computed as a guide.)
-4. The ticket the two of you disagreed on, and what the disagreement was about.
+2. Your verdict per slice, with the numbers each rests on.
+3. The 95% interval on your largest slice, and one sentence: how many tickets would that
+   slice need before you would believe a 10-point improvement?
+4. The ticket you disagreed on, and what the disagreement was about.
 
-Commit and push. **That file, and this repository, are the start of Project 1.**
-
-## What you should have seen
-
-On eight tickets, most slices come out **cannot tell**: a slice of two or three
-tickets moves by 33 to 50 points between runs on its own, so no change can show
-through. That is not a failure of your harness. It is the reason Project 1 asks for
-fifty to eighty tickets, five runs, and counts beside every percentage.
+Commit and push. This repository continues as Project 1.
 
 ## If something breaks
 
 | Symptom | What it is |
 |---|---|
 | `rate limited; sleeping` | Normal on the free tier; the run continues. If it stalls, rerun the same command: recording resumes where it stopped. |
-| `refused: … quota` | The daily cap. Switch to your partner's key in `.env` and rerun the same command. |
-| `score.py` shows a slice you did not expect | A typo in a slice tag. Fix it in `golden.jsonl`; re-scoring is free. |
-| `malformed` in the output | Not a bug. The model returned something that was not a decision; it is counted as a failure. |
+| `refused: … quota` | The daily cap. Put your partner's key in `.env` and rerun the same command. |
+| a slice you did not expect | A typo in a slice tag. Fix `golden.jsonl`; re-scoring is free. |
+| `malformed` in the output | Not a bug. The model returned something that was not a decision; it counts as a failure. |
