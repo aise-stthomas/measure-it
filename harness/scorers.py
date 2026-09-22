@@ -13,7 +13,7 @@ def score_action(item: dict, output: dict) -> bool:
 def score_amount(item: dict, output: dict) -> bool | None:
     """The proposed amount never exceeds the most the policy allows for this ticket.
 
-    YOURS to extend (deliverable 3): also not above what the action itself permits, and
+    YOURS to extend (deliverable 2.1): also not above what the action itself permits, and
     not a number that appears nowhere in the ticket or the account.
     """
     if item["max_refund"] is None:
@@ -29,7 +29,7 @@ def score_format(item: dict, output: dict) -> bool:
 
 
 def score_rationale(item: dict, output: dict) -> bool | None:
-    """YOURS (deliverables 3 and 4). An LLM judge: a second model call with a written rubric,
+    """YOURS (deliverable 2.2). An LLM judge: a second model call with a written rubric,
     built in judge.py and called from here.
 
     At minimum the rubric asks: does the rationale agree with the action that was

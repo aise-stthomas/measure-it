@@ -30,9 +30,9 @@ def print_table(title: str, table: Table) -> None:
 
 
 def noise_floor(runs: list[Table]) -> None:
-    """YOURS (deliverable 5). Per slice and scorer: the pass rate of each run, and the spread.
+    """YOURS (deliverable 2.3). Per slice and scorer: the pass rate of each run, and the spread.
 
     `runs` is one per_slice() table per recorded run of the same condition. Then
-    deliverable 6: two conditions side by side, and for each slice one of three words:
+    the question in 3.2: two conditions side by side, and for each slice one of three words:
     helped, hurt, or cannot tell.
     """
