@@ -47,7 +47,10 @@ without changes, because its output has the same shape.
    account); malformed output counted as a failure, never dropped. For the rationale
    text, a **model judge** with a written rubric. At minimum the rubric asks: does the
    rationale agree with the action that was actually taken, and does it state the
-   policy correctly? You have already seen both fail.
+   policy and the arithmetic correctly? Both fail in this system's own output. One
+   recorded rationale ends "choosing to hold since it exceeds my limit" on an output
+   whose action is `refund` for \$52.99; another says "the total for the lamp and
+   shipping is under \$50" when the ticket adds up to \$52.99.
 4. **A validated judge.** Before you look at any judge output, the two of you label 30
    rationales by hand, separately, then reconcile. Then run the judge on the same 30.
    Report where the judge and your labels agree and disagree, as counts, per slice,
