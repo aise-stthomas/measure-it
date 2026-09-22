@@ -1,6 +1,6 @@
 # P1 — Measure it
 
-**The ask.** Build an evaluation harness for the triage system in this repository, and
+**The assignment:** build an evaluation harness for the triage system in this repository, and
 use it to answer one question with evidence: does sending the policy as the system
 instruction, instead of beside the ticket, help? Your answer is per slice, with a noise
 floor, with a judge you validated, and with an honest list of what the harness cannot
