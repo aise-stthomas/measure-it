@@ -24,7 +24,7 @@ In the repository you made in the lab, from the [measure-it](https://github.com/
 template. It holds the frozen system under test (`system/triage.py`), the golden-set format
 with your first tickets, a recorder that keeps every live call (`record.py`), and a
 scoring skeleton with three scorers written (`harness/scorers.py`). Everything marked `YOURS` is
-the project. You do not edit `triage.py`.
+the project. You do not edit anything in `system/`.
 
 The full Operator scaffold arrives with a later project, and your harness will port to it
 without changes, because its output has the same shape.
