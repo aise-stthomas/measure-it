@@ -29,19 +29,20 @@ def score_format(item: dict, output: dict) -> bool:
 
 
 def score_rationale(item: dict, output: dict) -> bool | None:
-    """YOURS (deliverable 2.2). An LLM judge: a second model call with a written rubric,
-    built in judge.py and called from here.
+    """The LLM judge's verdict (harness/judge.py), recorded by judge.py.
 
-    At minimum the rubric asks: does the rationale agree with the action that was
-    actually taken, and does it state the policy correctly? Record the judge's outputs
-    as fixtures too, and validate it against your own labels before reporting a number.
+    Passes when the judge answered yes to every rubric question. None until the judge has
+    been run on this output. YOURS (deliverable 2.2): extend the rubric, then validate it.
     """
-    return None
+    verdicts = output.get("judge")
+    if verdicts is None:
+        return None
+    return all(verdicts.values())
 
 
 SCORERS = {  # name: (function, what it checks)
     "action":    (score_action,    "the route is the one the policy requires"),
     "amount":    (score_amount,    "the amount never exceeds what the policy allows"),
     "format":    (score_format,    "the output parsed as a decision"),
-    "rationale": (score_rationale, "YOURS: the reason agrees with the action and the policy"),
+    "rationale": (score_rationale, "the LLM judge says the reason holds up (rubric: harness/judge.py)"),
 }

@@ -27,8 +27,8 @@ often, and on which tickets is exactly what the harness exists to find out.
 
 **The harness** is everything else in this repository: a golden set of tickets with the
 right answer attached, a recorder that runs the system over them and saves every output,
-scorers that turn each output into pass or fail, and a report per slice. Three scorers
-are written (the action, the amount, the format). The rest is yours.
+scorers that turn each output into pass or fail (one of them an LLM judge), and a report
+per slice. A starting version of each is written. Extending them is the project.
 
 | | |
 |---|---|
@@ -57,15 +57,31 @@ checks the harness and tells you nothing about the system.
 
 ```bash
 uv run record.py --name baseline --runs 5                    # RECORD: calls the model, saves every output
-uv run record.py --name system --runs 5 --policy-in system   # a second condition
-uv run score.py baseline system                              # SCORE: reads the saved outputs, never calls the model
+uv run judge.py baseline                                     # JUDGE: the LLM judge reads each rationale, saves its verdicts
+uv run score.py baseline                                     # SCORE: reads the saved files, never calls a model
 ```
 
-**Record once, score many times.** `record.py` writes every model output to
-`fixtures/<condition>/run-<k>.jsonl` as it lands, and never repeats a call it already
-has: after a rate limit or the daily cap, rerun the same command and it continues.
-`score.py` reads only those files, so rewriting a scorer costs nothing and the data holds
-still. Fixtures are committed; your submission is re-scored from them.
+Two of those steps call a model; the third never does. **Record once, score many
+times.** `record.py` and `judge.py` write to `fixtures/<condition>/` as each call lands
+and never repeat a call they already have: after a rate limit or the daily cap, rerun
+the same command and it continues. `score.py` reads only those files, so rewriting a
+scorer costs nothing and the data holds still. Fixtures are committed; your submission
+is re-scored from them.
+
+**The harness is a list of scorers.** In `harness/scorers.py`, each scorer is a function
+`(item, output) -> True / False / None`, and `SCORERS` names them:
+
+```python
+SCORERS = {  # name: (function, what it checks)
+    "action":    (score_action,    "the route is the one the policy requires"),
+    "amount":    (score_amount,    "the amount never exceeds what the policy allows"),
+    "format":    (score_format,    "the output parsed as a decision"),
+    "rationale": (score_rationale, "the LLM judge says the reason holds up"),
+}
+```
+
+The report applies every scorer in that list to every recorded output and files the
+result under every slice tag. Adding a check is adding a function and a row.
 
 ## The files
 
@@ -75,12 +91,13 @@ system/          the system under test. Frozen: you measure it, you do not edit 
   plumbing.py      rate-limit retries; the fake provider
 harness/         the evaluation harness. Everything in here is yours.
   golden.py        loads golden/ and knows every slice an item belongs to
-  fixtures.py      writes and reads fixtures/; never calls the model
-  scorers.py       the scorers and the SCORERS registry: three written, rationale YOURS
+  fixtures.py      writes and reads fixtures/; never calls a model
+  scorers.py       the scorers and the SCORERS registry
+  judge.py         the LLM judge: a one-question rubric to start; YOURS to extend and validate
   report.py        per slice, per scorer, as counts; noise_floor is YOURS
-  judge.py         empty: the model judge and its validation
-record.py        CLI: runs the suite and saves every call
+record.py        CLI: runs the suite and saves every output
+judge.py         CLI: runs the judge over recorded outputs and saves its verdicts
 score.py         CLI: reads the fixtures and prints the report
 golden/          golden.jsonl (the tickets) and accounts.json
-fixtures/        every recorded model output, by condition and run. Committed.
+fixtures/        every recorded output and verdict, by condition and run. Committed.
 ```

@@ -29,19 +29,21 @@ to the model; and one slice of your own that you expect to fail.
 
 ### 2. Code — `harness/`
 
-**2.1 Scorers** (`harness/scorers.py`). Three are written: `action` (exact match),
-`amount` (within the cap), `format` (it parsed). You extend `amount` so it also fails a
-number that appears nowhere in the ticket or the account. Every scorer returns pass,
-fail, or "does not apply"; malformed output is a failure, never dropped.
+**2.1 Scorers** (`harness/scorers.py`). Each is a function `(item, output) -> True / False / None`,
+named in `SCORERS`; adding a check is adding a function and a row. Three are written:
+`action` (exact match), `amount` (within the cap), `format` (it parsed). You extend
+`amount` so it also fails a number that appears nowhere in the ticket or the account, and
+add any scorer your slices need. Malformed output is a failure, never dropped.
 
-**2.2 The LLM judge** (`harness/judge.py`, wired into `score_rationale`). The rationale
-is free text, so no rule can score it. Its scorer is a second model call with a written
-rubric: the rubric in the system instruction, the rationale with its action and the
-policy in the user text, yes/no questions out. At minimum the rubric asks: does the
-rationale agree with the action taken, and does it state the policy and the arithmetic
-correctly? Both fail in this system's output: one rationale ends "choosing to hold since
-it exceeds my limit" on a `refund` of \$52.99; another says the total "is under \$50" when
-it is \$52.99. The judge's own calls are recorded as fixtures too.
+**2.2 The LLM judge** (`harness/judge.py`). The rationale is free text, so no rule can
+score it. Its scorer is a second model call with a written rubric: the rubric in the
+system instruction, the rationale with its action and the policy in the user text,
+yes/no answers out. A starter is written with one question, *does the rationale support
+the action taken?* You extend `RUBRIC` so it also asks, at minimum, whether the rationale
+states the policy and the arithmetic correctly. Both fail in this system's output: one
+rationale ends "choosing to hold since it exceeds my limit" on a `refund` of \$52.99;
+another says the total "is under \$50" when it is \$52.99. `uv run judge.py <condition>`
+records the verdicts as fixtures; `score_rationale` reads them.
 
 **2.3 The noise floor** (`noise_floor` in `harness/report.py`). Given the tables from
 several runs of one condition, the pass rate per slice per run and the spread; given two
@@ -116,8 +118,8 @@ number is reported as a count.
 
 ## Budget
 
-- About **800 live calls**: a 60-ticket suite × 5 runs (300), × 5 runs for the question
-  (300), about 90 judge calls for validation, and one judged run. A smaller suite with
+- About **1,000 live calls**: a 60-ticket suite × 5 runs (300), × 5 runs for the question
+  (300), the judge over both (300), and about 90 judge calls for validation, and one judged run. A smaller suite with
   better slices costs less and scores higher.
 - The free tier allows roughly 25 calls a minute and has a **daily cap per model**. There
   are two of you, so two keys, and that should be enough to finish. At worst, five

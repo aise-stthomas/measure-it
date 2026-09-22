@@ -1,17 +1,66 @@
-"""YOURS (deliverable 2.2). The LLM judge for the rationale text: a second model call
-that reads a rationale and a rubric and answers yes/no questions.
+"""The LLM judge: a second model call that reads a rationale and answers a rubric.
 
-Nothing is written here on purpose. What the spec asks for, in the order that works:
-
-1. The rubric, as yes/no questions a stranger could answer from the text alone.
-2. Thirty rationales from a recorded run, labelled by each of you alone, then
-   reconciled. Keep the labels in a file in this repository.
-3. The judge: one model call per rationale. The rubric goes in the system instruction,
-   the text being judged goes in the user text, and the text being judged was written
-   by a model, so it can contain instructions. Record every judge call as a fixture.
-4. The two-by-two table, judge against your labels, per rubric question, as counts.
-5. The same thirty, judged three times. Does the judge agree with itself?
-
-system/triage.py shows how to make a model call and parse what comes back. Write a new
-call here rather than changing that file: it is the system under test.
+A starter is written: one rubric question, one model call, JSON out. Deliverable 2.2 is
+to extend RUBRIC and validate the judge against your own labels (3.2). The judge is a
+model call, so its verdicts are recorded as fixtures by judge.py and read by score.py;
+score.py never calls a model.
 """
+from __future__ import annotations
+
+import json
+import random
+
+from system.plumbing import with_retries
+from system.triage import DEFAULT_MODEL, POLICY
+
+# name -> a yes/no question a stranger could answer from the text alone. YOURS to extend.
+RUBRIC = {
+    "agrees_with_action": "Does the rationale support the action that was actually taken, "
+                          "rather than a different action?",
+}
+
+INSTRUCTION = """You are checking the one-sentence rationale a support-triage system gave for a decision.
+You will be shown the policy the system was following, the decision it made, and its rationale.
+Answer each question with true or false, judging only from the text shown.
+Respond with a JSON object whose keys are the question names and whose values are true or false."""
+
+
+def render(item: dict, output: dict) -> tuple[str, str]:
+    """(system instruction, user text). The rubric goes in the instruction; the text being
+    judged goes in the user text, because it was written by a model and can contain instructions."""
+    questions = "\n".join(f"  {name}: {q}" for name, q in RUBRIC.items())
+    system = f"{INSTRUCTION}\n\nQuestions:\n{questions}"
+    user = (f"POLICY:\n{POLICY}\n"
+            f"DECISION: action={output['action']}, refund_amount={output['refund_amount']}\n"
+            f"RATIONALE: {output['rationale']}\n")
+    return system, user
+
+
+def _sample(prompt: str, temperature: float | None, model: str, system: str | None = None) -> str:
+    from google import genai
+    from google.genai import types
+
+    client = genai.Client()
+    config = types.GenerateContentConfig(system_instruction=system, temperature=temperature,
+                                         response_mime_type="application/json", max_output_tokens=200)
+    return client.models.generate_content(model=model, contents=prompt, config=config).text or ""
+
+
+def _fake(prompt: str, temperature: float | None, model: str, system: str | None = None) -> str:
+    return json.dumps({name: random.random() < 0.8 for name in RUBRIC})  # NOT a model
+
+
+PROVIDERS = {"gemini": with_retries(_sample), "fake": _fake}
+
+
+def judge(item: dict, output: dict, provider: str = "gemini", model: str = DEFAULT_MODEL) -> dict:
+    """One judge call. Returns {question name: bool}; a question the judge did not answer is False."""
+    if output["action"] == "malformed" or not output.get("rationale"):
+        return {name: False for name in RUBRIC}
+    system, user = render(item, output)
+    raw = PROVIDERS[provider](user, None, model, system)
+    try:
+        verdicts = json.loads(raw)
+    except json.JSONDecodeError:
+        verdicts = {}
+    return {name: bool(verdicts.get(name, False)) for name in RUBRIC}
