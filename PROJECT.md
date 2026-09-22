@@ -35,36 +35,36 @@ The README describes it. Three things are pinned, and you measure them as pinned
 You do not edit anything in `system/`. A system that changes while you measure it has no
 measurement.
 
-## Two recipes
+## How to validate the judge (deliverable 4)
 
-Evaluation gets its own lectures later; these are enough to do deliverables 4 and 5 now.
+The judge is a model call that scores another model's text. Before its numbers count
+for anything, you measure the judge itself, against you.
 
-**Validating a judge.**
+1. Write the rubric first, as yes/no questions a stranger could answer from the text
+   alone. "Does the rationale agree with the action taken?" is one. "Rate the quality
+   1–10" is not.
+2. Pick 30 recorded outputs, spread across your slices, including failures.
+3. Each of you labels all 30 alone, without seeing the judge or each other. Then compare.
+   Where the two of you disagree, the rubric is unclear: fix the rubric, not the label.
+4. Run the judge on the same 30. For each rubric question, count the four cells: you
+   said yes and the judge said yes; you yes, judge no; you no, judge yes; both no.
+5. Read every disagreement. Judges fail in patterns: lenient toward fluent text,
+   rewarding length, missing a contradiction between the rationale and the action.
+   Name the pattern you found.
+6. Run the judge three times on the same 30. If it disagrees with itself, report that
+   too: it is the judge's own noise floor.
 
-1. Write the rubric first, as yes/no questions a stranger could answer from the text.
-2. Pick 30 outputs from a recorded run, spread across slices, including failures.
-3. Each of you labels all 30 alone, without seeing the judge or each other. Compare.
-   Where you disagree, the rubric is unclear: fix the rubric, not the label.
-4. Run the judge on the same 30. For each rubric question, the two-by-two table: you
-   said yes or no, the judge said yes or no. Report the four counts.
-5. Read every disagreement. Judges fail in patterns: lenient toward fluent text, rewarding
-   length, missing a contradiction between the rationale and the action. Name yours.
-6. Run the judge three times on the same 30. If it disagrees with itself, that is a noise
-   floor too. Report it.
+Send the rubric as the system instruction and the text being judged as the user text.
+The text being judged was written by a model and can contain instructions.
 
-The judge is a model call: the rubric goes in the system instruction, the text being
-judged goes in the user text, and the text being judged was written by a model and can
-contain instructions.
+## How to measure the noise floor (deliverable 5)
 
-**Measuring a noise floor.**
-
-1. Change nothing. Run the whole suite five times; record every call.
-2. For each slice, the pass rate of each run: five numbers that should be identical and
-   are not.
-3. Highest minus lowest is the noise floor for that slice. A difference between two
-   versions smaller than it is not evidence of anything.
-4. The noisy slices are usually the small ones and the ones near a policy boundary.
-   That is why deliverable 2 asks for counts.
+Change nothing. Run the whole suite five times and record every call. For each slice,
+the pass rate of each run gives five numbers that should be identical and are not;
+highest minus lowest is that slice's noise floor. A difference between two versions of
+the system smaller than the noise floor is not evidence of anything. The noisy slices
+are usually the small ones and the ones near a policy boundary, which is why every
+number is reported as a count.
 
 ## Budget
 
