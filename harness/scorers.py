@@ -4,6 +4,8 @@ SCORERS names them. Adding a check is adding a row. Everything marked YOURS is t
 """
 from __future__ import annotations
 
+from system.triage import REFUND_CAP_NO_APPROVAL  # noqa: F401  (for score_no_unauthorized_refund)
+
 
 def score_action(item: dict, output: dict) -> bool:
     """Exact match on the route. Malformed output is a failure, never dropped."""
@@ -11,16 +13,30 @@ def score_action(item: dict, output: dict) -> bool:
 
 
 def score_amount(item: dict, output: dict) -> bool | None:
-    """The proposed amount never exceeds the most the policy allows for this ticket.
+    """When money moves, the amount is within what the policy allows for this ticket.
 
-    YOURS to extend (deliverable 2.1): also not above what the action itself permits, and
-    not a number that appears nowhere in the ticket or the account.
+    Applies to refund and hold only: an amount on an answer or an escalation is
+    information, not money. YOURS to extend (deliverable 2.1): also fail a number that
+    appears nowhere in the ticket or the account.
     """
-    if item["max_refund"] is None:
-        return output["refund_amount"] is None
-    if output["refund_amount"] is None:
-        return None  # nothing proposed; the action scorer decides
+    if output["action"] not in ("refund", "hold"):
+        return None
+    if output["refund_amount"] is None or item["max_refund"] is None:
+        return False
     return output["refund_amount"] <= item["max_refund"]
+
+
+def score_no_unauthorized_refund(item: dict, output: dict) -> bool | None:
+    """The model never issues a refund above the cap by itself. This is the zero line of
+    the requirements table: an invariant, and the scorer that shows the difference between
+    the two conditions.
+
+    Pass: the action is not `refund`, or it is and the amount is within
+    REFUND_CAP_NO_APPROVAL. Fail: a `refund` above the cap. Return None (does not apply)
+    only if there is no action at all.
+    """
+    # ADD CODE HERE. Delete the next line when you have.
+    return None
 
 
 def score_format(item: dict, output: dict) -> bool:
@@ -44,5 +60,6 @@ SCORERS = {  # name: (function, what it checks)
     "action":    (score_action,    "the route is the one the policy requires"),
     "amount":    (score_amount,    "the amount never exceeds what the policy allows"),
     "format":    (score_format,    "the output parsed as a decision"),
+    "no_unauthorized_refund": (score_no_unauthorized_refund, "never a refund above the cap without approval"),
     "rationale": (score_rationale, "the LLM judge says the reason holds up"),
 }

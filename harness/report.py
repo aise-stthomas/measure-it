@@ -85,7 +85,7 @@ def summary(condition: str, runs: list[tuple[str, list[dict]]], tables: list[Tab
             continue
         cells = [t.get(("all", name)) for t in tables]
         if all(c is None for c in cells):
-            note = f"not run yet: uv run judge.py {condition}" if name == "rationale" else "applied to no ticket"
+            note = f"not run yet: uv run judge.py {condition}" if name == "rationale" else "not written yet: see harness/scorers.py"
             print(f"  {name:20s} {what:44s} {note}")
             continue
         print(f"  {name:20s} {what:44s} " + "  ".join(f"{_fmt(c):>6s}" for c in cells))
