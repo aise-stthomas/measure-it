@@ -4,14 +4,15 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-GOLDEN = Path("golden/golden.jsonl")
+GOLDEN = Path("golden/golden.json")
 ACCOUNTS = Path("golden/accounts.json")
 
 
 def load_golden() -> list[dict]:
-    items = [json.loads(line) for line in GOLDEN.read_text().splitlines() if line.strip()]
+    items = json.loads(GOLDEN.read_text())
+    assert isinstance(items, list), "golden.json is a JSON array of tickets"
     ids = [i["id"] for i in items]
-    assert len(ids) == len(set(ids)), "duplicate id in golden.jsonl"
+    assert len(ids) == len(set(ids)), "duplicate id in golden.json"
     return items
 
 

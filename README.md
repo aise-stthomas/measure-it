@@ -98,6 +98,6 @@ harness/         the evaluation harness. Everything in here is yours.
 record.py        CLI: runs the suite and saves every output
 judge.py         CLI: runs the judge over recorded outputs and saves its verdicts
 score.py         CLI: reads the fixtures and says what happened
-golden/          golden.jsonl (the tickets) and accounts.json
+golden/          golden.json (the tickets) and accounts.json
 fixtures/        every recorded output and verdict, by condition and run. Committed.
 ```

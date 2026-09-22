@@ -24,7 +24,7 @@ Do **Setup, once** in the [README](README.md). While your partner finishes, read
 
 ## Part 1: the dataset — write five tickets
 
-`golden/golden.jsonl` has ten tickets. Add **five**, in the same format
+`golden/golden.json` has ten tickets. Add **five**, in the same format
 (`golden/README.md` explains each field), one of each:
 
 | Ticket | Expected action | Slice tags |
@@ -131,6 +131,6 @@ the same shape, at full size.
 |---|---|
 | `rate limited; sleeping` | Normal on the free tier; the run continues. If it stalls, rerun the same command: recording resumes where it stopped. |
 | `refused: … quota` | The daily cap. Put your partner's key in `.env` and rerun the same command. |
-| a slice you did not expect | A typo in a slice tag. Fix `golden.jsonl`; re-scoring is free. |
+| a slice you did not expect | A typo in a slice tag. Fix `golden.json`; re-scoring is free. |
 | `malformed` in the output | Not a bug. The model returned something that was not a decision; it counts as a failure. |
 | the `rationale` row is missing | The judge has not been run on that condition yet: `uv run judge.py <condition>`. |

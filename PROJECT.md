@@ -15,7 +15,7 @@ makes one consequential decision.
 
 Three things: a dataset, code, and a write-up.
 
-### 1. The golden dataset — `golden/golden.jsonl`
+### 1. The golden dataset — `golden/golden.json`
 
 50–80 tickets you write, each with the action the policy requires, the most the refund
 may be, and the sentence of the policy that makes that the right answer. Realistic

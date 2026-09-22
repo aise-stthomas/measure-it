@@ -1,6 +1,7 @@
 # The golden set
 
-`golden.jsonl` is one ticket per line. Ten tickets are here so you can see the format and
+`golden.json` is a JSON array: one object per ticket, pretty-printed, so it is easy to
+edit by hand. Ten tickets are here so you can see the format and
 run the harness on day one. Replace or keep them; you need 50–80.
 
 | Field | Meaning |
