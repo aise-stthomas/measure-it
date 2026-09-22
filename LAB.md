@@ -1,8 +1,8 @@
 # Lab: can you tell a change from a wobble?
 
 In pairs. You build a small evaluation harness, run it against the triage system, and
-see how much evidence eight tickets can give. The lab has the same three parts as the
-project, each in miniature: **a dataset, code, a write-up.**
+see how much evidence eight tickets can give. The lab has the same shape as the
+project, in miniature: **a dataset, then code, then a measurement.**
 
 **The question.** The policy can be sent to the model in the same text as the ticket, or
 as the system instruction. Does moving it help? You answer per slice, in one word:
@@ -33,7 +33,7 @@ Do **Setup, once** in the [README](README.md). While your partner finishes, read
 | a refund request **between \$50 and \$200** | `hold` | `intent:refund`, `amount:50-to-200` |
 | a refund request **over \$200** | `escalate` | `intent:refund`, `amount:over-200` |
 | a question with **no money involved** | `answer` | `intent:question` |
-| a ticket the two of you **disagree** on | your best call, and `"ambiguous": true` | whatever fits |
+| a ticket the two of you **disagree** on: put it **at a boundary** (a \$45 item plus \$8 shipping; "my \$52 order, but keep \$5 for the trouble") | your best call, and `"ambiguous": true` | whatever fits |
 
 For each, fill in `policy` with the sentence of the policy that makes the answer right.
 If you cannot quote one, keep the ticket and mark it ambiguous: that is a finding.
@@ -111,20 +111,14 @@ $$\frac{\hat p + \frac{1.92}{n} \pm 1.96\sqrt{\frac{\hat p(1-\hat p)}{n} + \frac
 (4 of 6 gives 30% to 90%.) If the slice had zero failures, the rule of three: its true
 failure rate could still be as high as $3/n$.
 
-## Part 5: the write-up
+**If nothing wobbles.** A noise floor of zero means the model gave the same answer three
+times on every ticket in that slice. That is a finding, not a failure: your tickets are
+easy for it. To see the floor move, add one ticket that sits right at a boundary, such as
+a \$48 item plus \$6 shipping, and rerun `record.py --name baseline --runs 3`. Only the
+new ticket is recorded; the rest resume from the fixtures.
 
-Create `lab.md` in your repository:
-
-1. The ticket you disagreed on, and what the disagreement was about.
-2. The scorer you added, in one line.
-3. The judge's four counts, and one disagreement you read: who was right?
-4. The noise floor on one slice, with the three counts behind it.
-5. Your verdict per slice, with the numbers each rests on.
-6. The 95% interval on your largest slice, and one sentence: how many tickets would that
-   slice need before you would believe a 10-point improvement?
-
-Commit and push. This repository continues as Project 1: the same three parts, at full
-size.
+**Keep** the repository, with your tickets and fixtures in it. Project 1 continues there:
+the same shape, at full size.
 
 ## If something breaks
 
