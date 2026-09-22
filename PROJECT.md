@@ -60,10 +60,10 @@ looks like for those two steps.
   reconcile; run the judge on the same 30; the four counts per rubric question, per
   slice; and the judge's failure modes. A judge you have not checked is an opinion.
 - **Noise floor.** The unchanged system run five times over the whole suite
-  (`fixtures/baseline/`). `score.py` prints the pass rate per slice per run and the
+  (`fixtures/policy-in-user/`). `score.py` prints the pass rate per slice per run and the
   spread; you add one sentence per slice on the smallest change you could actually detect.
 - **The question, answered.** The suite run five times with `--policy-in system`
-  (`fixtures/system/`). `score.py baseline system` gives a verdict per slice, **helped**,
+  (`fixtures/policy-in-system/`). `score.py policy-in-user policy-in-system` gives a verdict per slice, **helped**,
   **hurt**, or **cannot tell**, by comparing the gap with the noise floor. You say whether
   you believe each verdict and why; "cannot tell" is right when the difference is inside
   the noise floor, and wrong when it is not.

@@ -1,8 +1,8 @@
 """Judge: run the LLM judge over recorded outputs and save its verdicts as fixtures.
 
-    uv run judge.py baseline                 # every run under fixtures/baseline
-    uv run judge.py baseline system          # several conditions
-    uv run judge.py baseline --provider fake # no key, NOT a model
+    uv run judge.py policy-in-user                 # every run under fixtures/policy-in-user
+    uv run judge.py policy-in-user system          # several conditions
+    uv run judge.py policy-in-user --provider fake # no key, NOT a model
 
 Writes fixtures/<condition>/judge-<run>.jsonl, one line per rationale. Like record.py it
 is resumable and never repeats a verdict it already has. The rubric is in harness/judge.py.

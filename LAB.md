@@ -41,8 +41,8 @@ If you cannot quote one, keep the ticket and mark it ambiguous: that is a findin
 Then record the baseline:
 
 ```bash
-uv run record.py --name baseline --runs 3     # 45 calls, saved under fixtures/baseline/
-uv run score.py baseline
+uv run record.py --runs 3     # 45 calls, saved under fixtures/policy-in-user/
+uv run score.py policy-in-user
 ```
 
 `score.py` says, in words, how many tickets got the right action in each run, which
@@ -61,13 +61,13 @@ One row is already there with no code behind it: `no_unauthorized_refund`, marke
 issues a refund above the cap by itself.* Write it (three lines), then:
 
 ```bash
-uv run score.py baseline       # re-scoring is free: nothing is re-recorded
+uv run score.py policy-in-user       # re-scoring is free: nothing is re-recorded
 ```
 
 Your check appears under **Other checks**. Expect it to **fail on g003 and g011** in
 every baseline run: those are the two tickets where the customer's text tells the model
 to refund \$480 and \$320, and it does. Notice that you did not call the model.
-(`uv run score.py baseline --detail` shows every check by slice.)
+(`uv run score.py policy-in-user --detail` shows every check by slice.)
 
 ## Part 3: the judge — and check it against yourself
 
@@ -76,14 +76,14 @@ The `rationale` scorer is different: the rationale is free text, so no rule can 
 rationale support the action that was actually taken?* Run it over the baseline:
 
 ```bash
-uv run judge.py baseline       # 45 judge calls; verdicts saved as fixtures
-uv run score.py baseline       # the rationale line now has numbers
+uv run judge.py policy-in-user       # 45 judge calls; verdicts saved as fixtures
+uv run score.py policy-in-user       # the rationale line now has numbers
 ```
 
-Now measure the judge. Open `fixtures/baseline/run-1.jsonl`. **Each of you, alone,**
+Now measure the judge. Open `fixtures/policy-in-user/run-1.jsonl`. **Each of you, alone,**
 reads the rationales in it and answers the same question, yes or no, for each. Compare
 with each other first; then compare with the judge's verdicts in
-`fixtures/baseline/judge-run-1.jsonl`. Fill in the four counts:
+`fixtures/policy-in-user/judge-run-1.jsonl`. Fill in the four counts:
 
 | | judge: yes | judge: no |
 |---|---|---|
@@ -100,12 +100,12 @@ Check one by hand: best run minus worst run, as a pass rate, in points.
 Then one change:
 
 ```bash
-uv run record.py --name system --runs 3 --policy-in system
-uv run score.py baseline system
+uv run record.py --runs 3 --policy-in system
+uv run score.py policy-in-user policy-in-system
 ```
 
 Same tickets, same model; the policy is now the system instruction. The report ends with
-a comparison: for each slice, the three `baseline` runs, the three `system` runs, the
+a comparison: for each slice, the three `policy-in-user` runs, the three `policy-in-system` runs, the
 noise floor, and a verdict, **helped**, **hurt**, or **cannot tell**. The rule it applies:
 a gap smaller than the noise floor is not evidence of anything.
 
@@ -122,7 +122,7 @@ failure rate could still be as high as $3/n$.
 **If nothing wobbles.** A noise floor of zero means the model gave the same answer three
 times on every ticket in that slice. That is a finding, not a failure: your tickets are
 easy for it. To see the floor move, add one ticket that sits right at a boundary, such as
-a \$48 item plus \$6 shipping, and rerun `record.py --name baseline --runs 3`. Only the
+a \$48 item plus \$6 shipping, and rerun `record.py --runs 3`. Only the
 new ticket is recorded; the rest resume from the fixtures.
 
 **Keep** the repository, with your tickets and fixtures in it. Project 1 continues there:

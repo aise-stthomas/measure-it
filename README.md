@@ -71,9 +71,9 @@ changes the odds; it is not a defense.
 ```bash
 cp .env.example .env        # paste your own Gemini key; each of you has one
 uv sync                     # or: python3 -m venv .venv && . .venv/bin/activate && pip install -e .
-uv run record.py --name try --runs 1 --provider fake    # no key needed
-uv run score.py try
-rm -r fixtures/try          # clean up: the fake provider's output is not data
+uv run record.py --runs 1 --provider fake    # no key needed
+uv run score.py fake
+rm -r fixtures/fake          # clean up: the fake provider's output is not data
 ```
 
 If `score.py` printed a table, the plumbing works. `--provider fake` is not a model; it
@@ -82,9 +82,9 @@ checks the harness and tells you nothing about the system.
 ## The loop
 
 ```bash
-uv run record.py --name baseline --runs 5                    # RECORD: calls the model, saves every output
-uv run judge.py baseline                                     # JUDGE: the LLM judge reads each rationale, saves its verdicts
-uv run score.py baseline                                     # SCORE: reads the saved files, never calls a model
+uv run record.py --runs 5                    # RECORD: calls the model, saves every output
+uv run judge.py policy-in-user                                     # JUDGE: the LLM judge reads each rationale, saves its verdicts
+uv run score.py policy-in-user                                     # SCORE: reads the saved files, never calls a model
 ```
 
 Two of those steps call a model; the third never does. **Record once, score many

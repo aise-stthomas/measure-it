@@ -1,8 +1,8 @@
 """Score: read the fixtures, never the model, and say what happened.
 
-    uv run score.py baseline             # one condition: right action per run, noise floor, by slice
-    uv run score.py baseline system      # two conditions: the same, then a verdict per slice
-    uv run score.py baseline --detail    # every scorer by slice
+    uv run score.py policy-in-user             # one condition: right action per run, noise floor, by slice
+    uv run score.py policy-in-user policy-in-system      # two conditions: the same, then a verdict per slice
+    uv run score.py policy-in-user --detail    # every scorer by slice
 
 The scorers are in harness/scorers.py and the report in harness/report.py.
 """
@@ -15,7 +15,7 @@ from harness import fixtures, golden, report
 
 def main() -> None:
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    p.add_argument("conditions", nargs="*", default=["baseline"])
+    p.add_argument("conditions", nargs="*", default=["policy-in-user"])
     p.add_argument("--detail", action="store_true", help="every scorer, by slice")
     args = p.parse_args()
 
