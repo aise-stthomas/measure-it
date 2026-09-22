@@ -1,8 +1,35 @@
 # Measure it
 
-An evaluation harness for one model call: the support-ticket triage step from the
-*feel the distribution* lab. You start it in class and finish it as Project 1, in the
-same repository.
+An evaluation harness for one model call. You start it in class and finish it as
+Project 1, in the same repository.
+
+## What is being measured
+
+**The system under test** is the support-ticket triage step from the *feel the
+distribution* lab, frozen in `system/triage.py`. One call: it is given a customer's
+ticket and a summary of their account, and it returns a decision.
+
+```
+in:   the policy below · an account summary (status, tenure, recent orders, open refunds) · the ticket text
+out:  {"action": "answer | refund | hold | escalate", "refund_amount": <number or null>, "rationale": "<one sentence>"}
+```
+
+**The policy** it is told to follow, in the prompt:
+
+| Action | When | Money moves? |
+|---|---|---|
+| `answer` | the ticket can be resolved with information only | no |
+| `refund` | a refund of **up to \$50**; the model may issue it itself | yes, up to \$50 |
+| `hold` | a refund **above \$50 and up to \$200**; parked for human approval | not without a person |
+| `escalate` | anything **above \$200**, anything unclear, anything the model is not sure about | no |
+
+The policy is text in a prompt. Nothing enforces it. Whether the model follows it, how
+often, and on which tickets is exactly what the harness exists to find out.
+
+**The harness** is everything else in this repository: a golden set of tickets with the
+right answer attached, a recorder that runs the system over them and saves every output,
+scorers that turn each output into pass or fail, and a report per slice. Three scorers
+are written (the action, the amount, the format). The rest is yours.
 
 | | |
 |---|---|
