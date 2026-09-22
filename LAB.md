@@ -91,6 +91,10 @@ a gap smaller than the noise floor is not evidence of anything.
 
 Read the verdicts. Which slices could show a change? Which could not, and why?
 
+The verdict is about the **action**, so the judge does not need to run on this
+condition; its `rationale` line will say "not run yet". If you want the judge's view of
+both conditions, `uv run judge.py policy-in-system` adds it.
+
 Then, for your largest slice, the 95% interval on its baseline pass rate. With $x$ passes
 of $n$:
 
