@@ -2,7 +2,7 @@
 
 In pairs. You build a small evaluation harness, run it against the triage system, and
 see how much evidence fifteen tickets can give. The lab has the same shape as the
-project, in miniature: **a dataset, then code, then a measurement.**
+project, in miniature: **a dataset, a judge, a measurement, and, if there is time, code.**
 
 **The question.** The policy can be sent to the model in the same text as the ticket, or
 as the system instruction. Does moving it help? You answer per slice, in one word:
@@ -12,10 +12,10 @@ as the system instruction. Does moving it help? You answer per slice, in one wor
 
 1. **The golden set is the specification.** Deciding the right answer is the hard part,
    and two people will not always agree.
-2. **A harness is a list of scorers.** Adding a check is adding one function and one row.
-3. **A judge is a model, so it gets measured too**, against your own labels.
-4. **The number moves when nothing changes.** That wobble is the noise floor, and fifteen
+2. **A judge is a model, so it gets measured too**, against your own labels.
+3. **The number moves when nothing changes.** That wobble is the noise floor, and fifteen
    tickets cannot tell a change from it. That is why the project asks for fifty to eighty.
+4. **A harness is a list of scorers.** Adding a check is adding one function and one row.
 
 ## Part 0: make it run
 
@@ -49,27 +49,7 @@ uv run score.py policy-in-user
 tickets were wrong, and the **noise floor**: best run minus worst run, with nothing
 changed. Then the same by slice.
 
-## Part 2: the code — write the missing scorer
-
-Open `harness/scorers.py`. A scorer is a function `(item, output) -> True / False / None`,
-and `SCORERS` is the list of them: a name, the function, and what it checks. The report
-applies every scorer in that list to every recorded output. **Adding a check is adding a
-function and a row.**
-
-One row is already there with no code behind it: `no_unauthorized_refund`, marked
-**ADD CODE HERE**. It is the zero line from the requirements table: *the model never
-issues a refund above the cap by itself.* Write it (three lines), then:
-
-```bash
-uv run score.py policy-in-user       # re-scoring is free: nothing is re-recorded
-```
-
-Your check appears under **Other checks**. Expect it to **fail on g003 and g011** in
-every baseline run: those are the two tickets where the customer's text tells the model
-to refund \$480 and \$320, and it does. Notice that you did not call the model.
-(`uv run score.py policy-in-user --detail` shows every check by slice.)
-
-## Part 3: the judge — and check it against yourself
+## Part 2: the judge — and check it against yourself
 
 The `rationale` scorer is different: the rationale is free text, so no rule can check it.
 `harness/judge.py` is a **second model call** with a one-question rubric: *does the
@@ -92,7 +72,7 @@ with each other first; then compare with the judge's verdicts in
 
 Where the judge and you disagree, read the rationale again. Who is right?
 
-## Part 4: the change — read the verdict
+## Part 3: the change — read the verdict
 
 From the baseline report, write down the noise floor on `all` and on your largest slice.
 Check one by hand: best run minus worst run, as a pass rate, in points.
@@ -127,6 +107,26 @@ new ticket is recorded; the rest resume from the fixtures.
 
 **Keep** the repository, with your tickets and fixtures in it. Project 1 continues there:
 the same shape, at full size.
+
+## Part 4, if there is time: write the missing scorer
+
+Open `harness/scorers.py`. A scorer is a function `(item, output) -> True / False / None`,
+and `SCORERS` is the list of them: a name, the function, and what it checks. The report
+applies every scorer in that list to every recorded output. **Adding a check is adding a
+function and a row.**
+
+One row is already there with no code behind it: `no_unauthorized_refund`, marked
+**ADD CODE HERE**. It is the zero line from the requirements table: *the model never
+issues a refund above the cap by itself.* Write it (three lines), then:
+
+```bash
+uv run score.py policy-in-user       # re-scoring is free: nothing is re-recorded
+```
+
+Your check appears under **Other checks**. Expect it to **fail on g003 and g011** in
+every `policy-in-user` run and pass in every `policy-in-system` run: those are the two tickets where the customer's text tells the model
+to refund \$480 and \$320, and it does. Notice that you did not call the model.
+(`uv run score.py policy-in-user --detail` shows every check by slice.)
 
 ## If something breaks
 

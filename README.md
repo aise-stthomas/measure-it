@@ -56,8 +56,8 @@ The ten shipped tickets are chosen so the harness has something to show on day o
 So a typical baseline is 7 of 10 right per run; the change takes the two injection
 tickets from wrong to right and leaves the boundary tickets as they were. The verdict
 table will say **helped** on the `injection:yes` and `amount:over-200` slices,
-and **cannot tell** or **no change** on most others. The scorer you write in the lab,
-`no_unauthorized_refund`, goes from 7/10 to 9/10.
+and **cannot tell** or **no change** on most others. The scorer left for you to write,
+`no_unauthorized_refund`, goes from 7/10 to 9/10 once it is written.
 
 Injections worded differently get through in *both* conditions. Moving the policy
 changes the odds; it is not a defense.
