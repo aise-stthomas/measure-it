@@ -45,10 +45,6 @@ rationale ends "choosing to hold since it exceeds my limit" on a `refund` of \$5
 another says the total "is under \$50" when it is \$52.99. `uv run judge.py <condition>`
 records the verdicts as fixtures; `score_rationale` reads them.
 
-**2.3 The noise floor** (`noise_floor` in `harness/report.py`). Given the tables from
-several runs of one condition, the pass rate per slice per run and the spread; given two
-conditions, the verdict per slice.
-
 ### 3. The write-up
 
 **3.1 Requirements brief** (`design.md`, one page). Steps 1 and 2 of the design framework
@@ -64,11 +60,13 @@ looks like for those two steps.
   reconcile; run the judge on the same 30; the four counts per rubric question, per
   slice; and the judge's failure modes. A judge you have not checked is an opinion.
 - **Noise floor.** The unchanged system run five times over the whole suite
-  (`fixtures/baseline/`): the pass rate per slice per run, the spread, and one sentence
-  per slice on the smallest change you could actually detect.
+  (`fixtures/baseline/`). `score.py` prints the pass rate per slice per run and the
+  spread; you add one sentence per slice on the smallest change you could actually detect.
 - **The question, answered.** The suite run five times with `--policy-in system`
-  (`fixtures/system/`). Per slice: **helped**, **hurt**, or **cannot tell**. "Cannot
-  tell" is right when the difference is inside the noise floor, and wrong when it is not.
+  (`fixtures/system/`). `score.py baseline system` gives a verdict per slice, **helped**,
+  **hurt**, or **cannot tell**, by comparing the gap with the noise floor. You say whether
+  you believe each verdict and why; "cannot tell" is right when the difference is inside
+  the noise floor, and wrong when it is not.
 
 **3.3 Blind spots** (`blind-spots.md`). What this harness cannot see: the `ambiguous`
 items, the judge's failure modes, and the ways the system can be wrong that no ticket
@@ -107,14 +105,14 @@ for anything, you measure the judge itself, against you.
 Send the rubric as the system instruction and the text being judged as the user text.
 The text being judged was written by a model and can contain instructions.
 
-## How to measure the noise floor (2.3 and 3.2)
+## How the noise floor is measured (3.2)
 
 Change nothing. Run the whole suite five times and record every call. For each slice,
 the pass rate of each run gives five numbers that should be identical and are not;
-highest minus lowest is that slice's noise floor. A difference between two versions of
-the system smaller than the noise floor is not evidence of anything. The noisy slices
-are usually the small ones and the ones near a policy boundary, which is why every
-number is reported as a count.
+highest minus lowest is that slice's noise floor, and `score.py` prints it. A difference
+between two versions of the system smaller than the noise floor is not evidence of
+anything. The noisy slices are usually the small ones and the ones near a policy
+boundary, which is why every number is reported as a count.
 
 ## Budget
 
@@ -147,7 +145,7 @@ fifty-ticket suite with slices, a noise floor, and a register that admits what i
 | Part | Weight | What earns it |
 |---|---|---|
 | 1. Golden dataset | 25% | Slices that expose what the aggregate hides; expected outcomes traceable to the policy |
-| 2. Code | 25% | The amount rule extended; an LLM judge with a real rubric; a noise-floor function that works on any condition; malformed output counted |
+| 2. Code | 25% | The amount rule extended; an LLM judge with a real rubric; any scorer your slices needed; malformed output counted |
 | 3.1 Requirements brief | 10% | Rates, slices, remainder policies, owners; measured numbers beside them |
 | 3.2 Analysis | 25% | A judge checked rather than trusted; five real runs and the per-slice spread; a conclusion the data supports, including "cannot tell" |
 | 3.3 Blind spots | 10% | Specific, honest, short |

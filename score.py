@@ -1,29 +1,36 @@
-"""Score: read the fixtures, never the model, and report per slice and per scorer.
+"""Score: read the fixtures, never the model, and say what happened.
 
-    uv run score.py baseline            # every run recorded under fixtures/baseline
-    uv run score.py baseline system     # two conditions, one after the other
+    uv run score.py baseline             # one condition: right action per run, noise floor, by slice
+    uv run score.py baseline system      # two conditions: the same, then a verdict per slice
+    uv run score.py baseline --detail    # every scorer by slice
 
 The scorers are in harness/scorers.py and the report in harness/report.py.
 """
 from __future__ import annotations
 
-import sys
+import argparse
 
 from harness import fixtures, golden, report
 
 
 def main() -> None:
+    p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    p.add_argument("conditions", nargs="*", default=["baseline"])
+    p.add_argument("--detail", action="store_true", help="every scorer, by slice")
+    args = p.parse_args()
+
     items = {i["id"]: i for i in golden.load_golden()}
-    for name in sys.argv[1:] or ["baseline"]:
-        tables = []
-        for run_name, records in fixtures.runs(name):
-            records = [r for r in records if r["id"] in items]
-            table = report.per_slice(items, records)
-            tables.append(table)
-            report.print_table(f"{name} / {run_name}: {len(records)} records", table)
-        if not tables:
-            print(f"no fixtures under {fixtures.FIXTURES / name}; run record.py first")
-        report.noise_floor(tables)
+    tables_by: dict[str, list] = {}
+    for condition in args.conditions:
+        runs = [(name, [r for r in records if r["id"] in items]) for name, records in fixtures.runs(condition)]
+        if not runs:
+            print(f"no fixtures under {fixtures.FIXTURES / condition}; run record.py first")
+            continue
+        tables_by[condition] = [report.per_slice(items, records) for _, records in runs]
+        report.summary(condition, runs, tables_by[condition], items, detail=args.detail)
+    if len(tables_by) == 2:
+        (a, ta), (b, tb) = tables_by.items()
+        report.compare(a, ta, b, tb, items)
 
 
 if __name__ == "__main__":

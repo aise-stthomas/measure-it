@@ -45,7 +45,9 @@ uv run record.py --name baseline --runs 3     # 45 calls, saved under fixtures/b
 uv run score.py baseline
 ```
 
-`score.py` prints one table per run: for each slice and each scorer, passed of total.
+`score.py` says, in words, how many tickets got the right action in each run, which
+tickets were wrong, and the **noise floor**: best run minus worst run, with nothing
+changed. Then the same by slice.
 
 ## Part 2: the code — add a scorer
 
@@ -61,7 +63,8 @@ at most one sentence (say, 1 to 300 characters), since the policy asked for one.
 uv run score.py baseline       # re-scoring is free: nothing is re-recorded
 ```
 
-Your new row appears in the table. Notice that you did not call the model.
+Your check appears under **Other checks**. Notice that you did not call the model.
+(`uv run score.py baseline --detail` shows every check by slice.)
 
 ## Part 3: the judge — and check it against yourself
 
@@ -71,7 +74,7 @@ rationale support the action that was actually taken?* Run it over the baseline:
 
 ```bash
 uv run judge.py baseline       # 45 judge calls; verdicts saved as fixtures
-uv run score.py baseline       # the rationale row now has numbers
+uv run score.py baseline       # the rationale line now has numbers
 ```
 
 Now measure the judge. Open `fixtures/baseline/run-1.jsonl`. **Each of you, alone,**
@@ -86,10 +89,10 @@ with each other first; then compare with the judge's verdicts in
 
 Where the judge and you disagree, read the rationale again. Who is right?
 
-## Part 4: the change — measure the wobble, then give a verdict
+## Part 4: the change — read the verdict
 
-For your largest slice, from the three baseline runs, write down the `action` pass count
-in each run and **the noise floor**: highest rate minus lowest rate, in points.
+From the baseline report, write down the noise floor on `all` and on your largest slice.
+Check one by hand: best run minus worst run, as a pass rate, in points.
 
 Then one change:
 
@@ -98,10 +101,12 @@ uv run record.py --name system --runs 3 --policy-in system
 uv run score.py baseline system
 ```
 
-Same tickets, same model; the policy is now the system instruction. For **each slice**,
-compare the three `baseline` runs with the three `system` runs and write one word:
-**helped**, **hurt**, or **cannot tell**. The rule: a difference smaller than that slice's
-noise floor is not evidence of anything.
+Same tickets, same model; the policy is now the system instruction. The report ends with
+a comparison: for each slice, the three `baseline` runs, the three `system` runs, the
+noise floor, and a verdict, **helped**, **hurt**, or **cannot tell**. The rule it applies:
+a gap smaller than the noise floor is not evidence of anything.
+
+Read the verdicts. Which slices could show a change? Which could not, and why?
 
 Then, for your largest slice, the 95% interval on its baseline pass rate. With $x$ passes
 of $n$:

@@ -94,10 +94,10 @@ harness/         the evaluation harness. Everything in here is yours.
   fixtures.py      writes and reads fixtures/; never calls a model
   scorers.py       the scorers and the SCORERS registry
   judge.py         the LLM judge: a one-question rubric to start; YOURS to extend and validate
-  report.py        per slice, per scorer, as counts; noise_floor is YOURS
+  report.py        the summary, the by-slice table, and the comparison with verdicts
 record.py        CLI: runs the suite and saves every output
 judge.py         CLI: runs the judge over recorded outputs and saves its verdicts
-score.py         CLI: reads the fixtures and prints the report
+score.py         CLI: reads the fixtures and says what happened
 golden/          golden.jsonl (the tickets) and accounts.json
 fixtures/        every recorded output and verdict, by condition and run. Committed.
 ```
