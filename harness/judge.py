@@ -11,6 +11,6 @@ Nothing is written here on purpose. What the spec asks for, in the order that wo
 4. The two-by-two table, judge against your labels, per rubric question, as counts.
 5. The same thirty, judged three times. Does the judge agree with itself?
 
-triage.py shows how to make a model call and parse what comes back. Write a new call
-here rather than changing that file: it is the system under test.
+system/triage.py shows how to make a model call and parse what comes back. Write a new
+call here rather than changing that file: it is the system under test.
 """

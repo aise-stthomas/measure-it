@@ -43,12 +43,18 @@ still. Fixtures are committed; your submission is re-scored from them.
 
 ## The files
 
-| File | What it is | Yours to change? |
-|---|---|---|
-| `triage.py` | **The system under test**: render, sample, parse. | **No** |
-| `plumbing.py` | Rate-limit retries; the fake provider. | No need |
-| `golden/golden.jsonl` | The golden set: tickets with the right answer, tagged by slice. | **Yes** |
-| `golden/accounts.json` | The account summaries the tickets refer to. | Yes |
-| `record.py` | Runs the suite; saves every call to `fixtures/`. | If you need to |
-| `score.py` | The scorers and the per-slice report. Three scorers are written. | **Yes: this is the project** |
-| `judge.py` | Empty. The model judge and its validation. | **Yes** |
+```
+system/          the system under test. Frozen: you measure it, you do not edit it.
+  triage.py        render → sample → parse, and the policy_in option
+  plumbing.py      rate-limit retries; the fake provider
+harness/         the evaluation harness. Everything in here is yours.
+  golden.py        loads golden/ and knows every slice an item belongs to
+  fixtures.py      writes and reads fixtures/; never calls the model
+  scorers.py       the scorers and the SCORERS registry: three written, rationale YOURS
+  report.py        per slice, per scorer, as counts; noise_floor is YOURS
+  judge.py         empty: the model judge and its validation
+record.py        CLI: runs the suite and saves every call
+score.py         CLI: reads the fixtures and prints the report
+golden/          golden.jsonl (the tickets) and accounts.json
+fixtures/        every recorded model output, by condition and run. Committed.
+```

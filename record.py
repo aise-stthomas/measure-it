@@ -5,31 +5,16 @@
     uv run record.py --name try --runs 1 --provider fake           # no key, NOT a model
     uv run record.py --name baseline --runs 5 --limit 3            # three tickets, to test
 
-Writes fixtures/<name>/run-<k>.jsonl, one line per call, as each call lands. It is
-resumable: a call already in the file is never made again, so when you hit a rate limit
-or the daily cap, rerun the same command later and it continues where it stopped.
-
-Score from these files with score.py. Re-scoring costs nothing. Re-sampling costs quota
-and gives you different data, so never delete a fixture to "clean up".
+Writes fixtures/<name>/run-<k>.jsonl, one line per call, as each call lands. Resumable:
+a call already in the file is never made again, so after a rate limit or the daily cap,
+rerun the same command and it continues where it stopped.
 """
 from __future__ import annotations
 
 import argparse
-import json
-from pathlib import Path
 
-from triage import DEFAULT_MODEL, triage
-
-GOLDEN = Path("golden/golden.jsonl")
-ACCOUNTS = Path("golden/accounts.json")
-FIXTURES = Path("fixtures")
-
-
-def load_golden() -> list[dict]:
-    items = [json.loads(line) for line in GOLDEN.read_text().splitlines() if line.strip()]
-    ids = [i["id"] for i in items]
-    assert len(ids) == len(set(ids)), "duplicate id in golden.jsonl"
-    return items
+from harness import fixtures, golden
+from system import DEFAULT_MODEL, triage
 
 
 def main() -> None:
@@ -41,14 +26,11 @@ def main() -> None:
     p.add_argument("--limit", type=int, help="only the first N tickets")
     args = p.parse_args()
 
-    items = load_golden()[: args.limit]
-    accounts = json.loads(ACCOUNTS.read_text())
-    out_dir = FIXTURES / args.name
-    out_dir.mkdir(parents=True, exist_ok=True)
-
+    items = golden.load_golden()[: args.limit]
+    accounts = golden.load_accounts()
     for run in range(1, args.runs + 1):
-        out = out_dir / f"run-{run}.jsonl"
-        done = {json.loads(line)["id"] for line in out.read_text().splitlines()} if out.exists() else set()
+        path = fixtures.run_path(args.name, run)
+        done = fixtures.recorded_ids(path)
         todo = [i for i in items if i["id"] not in done]
         print(f"{args.name} run {run}: {len(done)} recorded, {len(todo)} to go "
               f"({DEFAULT_MODEL} via {args.provider}, policy in the {args.policy_in} text)", flush=True)
@@ -56,8 +38,7 @@ def main() -> None:
             rec = triage(item["ticket"], accounts[item["account"]],
                          provider=args.provider, policy_in=args.policy_in)
             rec.update({"id": item["id"], "run": run, "condition": args.name})
-            with out.open("a") as f:
-                f.write(json.dumps(rec) + "\n")
+            fixtures.append(path, rec)
             print(f"  {item['id']}  {rec['action']:9s} {'' if rec['refund_amount'] is None else rec['refund_amount']}", flush=True)
 
 

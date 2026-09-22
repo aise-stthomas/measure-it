@@ -17,7 +17,7 @@ import time
 
 from dotenv import load_dotenv
 
-from plumbing import fake_model, with_retries
+from .plumbing import fake_model, with_retries
 
 load_dotenv()  # reads GEMINI_API_KEY (and optional GEMINI_MODEL) from .env
 

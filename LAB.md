@@ -12,7 +12,7 @@ per slice, in one of three words: *helped*, *hurt*, or *cannot tell*.
 ## Part 0: make the harness run
 
 Do **Setup, once** in the [README](README.md): the template, the key, `uv sync`, and the
-fake-provider check. Then read `triage.py` while your partner finishes: it is the system
+fake-provider check. Then read `system/triage.py` while your partner finishes: it is the system
 under test, and you do not change it.
 
 ## Part 1: write five tickets

@@ -11,19 +11,19 @@ measuring is one model call that makes one consequential decision.
 
 The system under test is the triage step you met in the *feel the distribution* lab: the `triage()` function, frozen in this project's repository,
 [measure-it](https://github.com/aise-stthomas/measure-it). It renders a ticket and an account summary into a prompt, takes one sample from the model, and parses the result into `{action, refund_amount, rationale}`. The policy it is
-supposed to follow is the `POLICY` text in `triage.py`. That is the component.
+supposed to follow is the `POLICY` text in `system/triage.py`. That is the component.
 Everything you measure is about that component.
 
-- **Model:** `gemini-3.1-flash-lite`. If you change models, make sure the new one honors temperature.
+- **Model:** `gemini-3.1-flash-lite`, pinned in `system/triage.py`. If you change models, make sure the new one honors temperature.
 - **Temperature:** the provider's default. That is what production would see.
 - **Prompt:** `POLICY` exactly as it ships (`policy_in="user"`).
 
 ## Where you start
 
 In the repository you made in the lab, from the [measure-it](https://github.com/aise-stthomas/measure-it)
-template. It holds the frozen system under test (`triage.py`), the golden-set format
+template. It holds the frozen system under test (`system/triage.py`), the golden-set format
 with your first tickets, a recorder that keeps every live call (`record.py`), and a
-scoring skeleton with three scorers written (`score.py`). Everything marked `YOURS` is
+scoring skeleton with three scorers written (`harness/scorers.py`). Everything marked `YOURS` is
 the project. You do not edit `triage.py`.
 
 The full Operator scaffold arrives with a later project, and your harness will port to it
@@ -58,7 +58,7 @@ without changes, because its output has the same shape.
    one sentence per slice, the smallest change you could actually detect.
 6. **One question, answered with your harness.** There is a second way to send the
    prompt: `--policy-in system` puts the policy in the system instruction instead of
-   beside the ticket (see `render()` in `triage.py`). Run the suite five
+   beside the ticket (see `render()` in `system/triage.py`). Run the suite five
    times that way. **Per slice: did it help, did it hurt, or can you not tell?** "Cannot
    tell" is an acceptable answer when the difference is inside your noise floor, and a
    wrong answer when it is not.
