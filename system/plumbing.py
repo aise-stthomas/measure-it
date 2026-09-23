@@ -8,39 +8,74 @@ import random
 import time
 
 
+def _quota(e) -> tuple[bool, float | None]:
+    """Read a 429's details: (is it a daily cap?, seconds the provider asked us to wait).
+
+    Gemini says "check your plan and billing details" on *every* 429, so the words tell
+    you nothing. The structured details do: a QuotaFailure names the quota that ran out
+    (...PerMinute... or ...PerDay...), and a RetryInfo says how long until it refills.
+    """
+    body = e.details if isinstance(e.details, dict) else {}
+    body = body.get("error", body) if isinstance(body.get("error"), dict) else body
+    daily, wait = False, None
+    for d in body.get("details") or []:
+        if not isinstance(d, dict):
+            continue
+        for v in d.get("violations") or []:
+            if "perday" in (str(v.get("quotaId", "")) + str(v.get("quotaMetric", ""))).lower():
+                daily = True
+        delay = d.get("retryDelay")
+        if isinstance(delay, str) and delay.endswith("s"):
+            try:
+                wait = float(delay[:-1])
+            except ValueError:
+                pass
+    msg = (getattr(e, "message", None) or "").lower()
+    if "per day" in msg or "daily" in msg:
+        daily = True
+    return daily, wait
+
+
 def with_retries(sample):
     """Wrap a sample(prompt, temperature, model) function so a run finishes.
 
     The free tier *is* a per-minute rate limit: a 429 means "the minute is not over
-    yet", so sleep briefly and try again. A daily cap, a billing problem, or a provider
-    that keeps returning 5xx will not get better by waiting, so stop and say why.
+    yet", so wait as long as the provider asks (or a bit, growing, if it does not say)
+    and try again. The daily cap, or a provider that keeps returning 5xx, will not get
+    better by waiting, so stop and say why.
     """
     def call(prompt: str, temperature: float | None, model: str, system: str | None = None) -> str:
         from google.genai import errors
 
         switch = ("Everything recorded so far is kept: rerun the same command later (or "
                   "with your partner's key) and it continues where it stopped.")
-        delay, server_errors = 5, 0
-        for _ in range(30):
+        backoff, waited, server_errors = 10.0, 0.0, 0
+        while True:
             try:
                 return sample(prompt, temperature, model, system)
             except errors.ClientError as e:
                 if e.code != 429:
                     raise
-                msg = getattr(e, "message", str(e))
-                if any(w in msg.lower() for w in ("day", "depleted", "billing", "credits")):
-                    raise SystemExit(f"\n{model} refused: {msg[:200]}\n{switch}")
-                print(f"    rate limited; sleeping {delay}s", flush=True)
+                daily, asked = _quota(e)
+                if daily:
+                    raise SystemExit(f"\n{model} refused: the daily quota on this key is used up.\n{switch}")
+                if waited > 15 * 60:
+                    raise SystemExit(f"\n{model} has been rate limiting for 15 minutes; something other "
+                                     f"than the per-minute limit is wrong. {switch}")
+                delay = (asked + 1) if asked else backoff
+                backoff = min(backoff * 2, 60)
+                print(f"    rate limited; sleeping {delay:.0f}s", flush=True)
                 time.sleep(delay)
+                waited += delay
             except errors.ServerError as e:
                 server_errors += 1
                 if server_errors == 1:
                     print(f"    server error {e.code}: {getattr(e, 'message', str(e))[:120]}", flush=True)
                 if server_errors >= 5:
                     raise SystemExit(f"\n{model} keeps returning {e.code}; that is the provider, not you. {switch}")
-                print(f"    retrying in {delay}s", flush=True)
-                time.sleep(delay)
-        raise SystemExit(f"\nGave up after repeated rate limits on {model}. {switch}")
+                print(f"    retrying in {backoff:.0f}s", flush=True)
+                time.sleep(backoff)
+                backoff = min(backoff * 2, 60)
     return call
 
 
